@@ -51,13 +51,14 @@ class NetworkRoomList {
 	private NetworkRoom[] rooms;
 }
 
+// 밑에 구체적인 상수 수치는 추후 변경할 것임!
 interface NetworkInterface {
 	// all functions can return NETWORK_ERROR
 	public static final int NETWORK_ERROR = 1;
-	// all functions can return INVALID_REQ
+	// all functions can return INVALID_REQ or INVALID_RES
 	public static final int INVALID_REQ = -2;
 	public static final int INVALID_RES = -3;
-	// wait로 표시된 함수들
+	// wait로 표시된 함수들은 이 값을 반환할 수 있음.
 	public static final int TIME_OVER = -1;
 	
 	public static final int NICKNAME_OK = 2;
@@ -83,13 +84,16 @@ interface NetworkInterface {
 	public static final int USER_ENTER = 14;
 	int waitUser();		// wait
 	
+	
+	// 이 밑의 모든 함수들은 USER_EXIT을 반활 할 수 있음.
 	public static final int USER_EXIT = 111;
 	
+	// call one more if this function return USER_EXIT or INVALID_RES
+	// internally using static flag, prevent duplicate sending packet.
+	// 이 사실은 모든 함수들에 해당됨.
 	public static final int READY_OK = 15;
 	int readyGame();	// wait
 	
-	// process that and call one more if return USER_EXIT or INVALID_RES
-	// internally using static flag, prevent duplicate sending packet.
 	public static final int EXIT_ROOM_OKAY = 2222;
 	int exitRoom();
 	
