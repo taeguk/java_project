@@ -81,8 +81,9 @@ interface NetworkInterface {
 	public static final int ROOM_DEL = 13;
 	int enterRoom(int roomId);
 	
+	// String -> user name
 	public static final int USER_ENTER = 14;
-	int waitUser();		// wait
+	Pair<Integer, String> waitUser();		// wait
 	
 	
 	// 이 밑의 모든 함수들은 USER_EXIT을 반활 할 수 있음.
