@@ -34,10 +34,10 @@ class Pair<U, V> {
 }
 
 class NetworkRoom {
-	public static final int ONE_WINS = 1;	// ´ÜÆÇ½ÂºÎ
-	public static final int TWO_WINS = 2;	// 3ÆÇ 2½ÂÁ¦
-	public static final int THREE_WINS = 3;	// 5ÆÇ 3½ÂÁ¦
-	public static final int FOUR_WINS = 4;	// 7ÆÇ 4½ÂÁ¦
+	public static final int ONE_WINS = 1;	// ë‹¨íŒìŠ¹ë¶€
+	public static final int TWO_WINS = 2;	// 3íŒ 2ìŠ¹ì œ
+	public static final int THREE_WINS = 3;	// 5íŒ 3ìŠ¹ì œ
+	public static final int FOUR_WINS = 4;	// 7íŒ 4ìŠ¹ì œ
 	
 	private int roomId;
 	private String roomName;
@@ -51,14 +51,14 @@ class NetworkRoomList {
 	private NetworkRoom[] rooms;
 }
 
-// ¹Ø¿¡ ±¸Ã¼ÀûÀÎ »ó¼ö ¼öÄ¡´Â ÃßÈÄ º¯°æÇÒ °ÍÀÓ!
+// ë°‘ì— êµ¬ì²´ì ì¸ ìƒìˆ˜ ìˆ˜ì¹˜ëŠ” ì¶”í›„ ë³€ê²½í•  ê²ƒì„!
 interface NetworkInterface {
 	// all functions can return NETWORK_ERROR
 	public static final int NETWORK_ERROR = 1;
 	// all functions can return INVALID_REQ or INVALID_RES
 	public static final int INVALID_REQ = -2;
 	public static final int INVALID_RES = -3;
-	// wait·Î Ç¥½ÃµÈ ÇÔ¼öµéÀº ÀÌ °ªÀ» ¹İÈ¯ÇÒ ¼ö ÀÖÀ½.
+	// waitë¡œ í‘œì‹œëœ í•¨ìˆ˜ë“¤ì€ ì´ ê°’ì„ ë°˜í™˜í•  ìˆ˜ ìˆìŒ.
 	public static final int TIME_OVER = -1;
 	
 	public static final int NICKNAME_OK = 2;
@@ -85,12 +85,12 @@ interface NetworkInterface {
 	int waitUser();		// wait
 	
 	
-	// ÀÌ ¹ØÀÇ ¸ğµç ÇÔ¼öµéÀº USER_EXITÀ» ¹İÈ° ÇÒ ¼ö ÀÖÀ½.
+	// ì´ ë°‘ì˜ ëª¨ë“  í•¨ìˆ˜ë“¤ì€ USER_EXITì„ ë°˜í™œ í•  ìˆ˜ ìˆìŒ.
 	public static final int USER_EXIT = 111;
 	
 	// call one more if this function return USER_EXIT or INVALID_RES
 	// internally using static flag, prevent duplicate sending packet.
-	// ÀÌ »ç½ÇÀº ¸ğµç ÇÔ¼öµé¿¡ ÇØ´çµÊ.
+	// ì´ ì‚¬ì‹¤ì€ ëª¨ë“  í•¨ìˆ˜ë“¤ì— í•´ë‹¹ë¨.
 	public static final int READY_OK = 15;
 	int readyGame();	// wait
 	
@@ -104,7 +104,7 @@ interface NetworkInterface {
 	int dropBall(int pos);
 	
 	public static final int ENEMY_DROP = 18;
-	public Pair<Integer, Integer> waitDrop();
+	public Pair<Integer, Integer> waitDrop();	// wait
 }
 
 
