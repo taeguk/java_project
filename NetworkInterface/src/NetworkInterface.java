@@ -87,7 +87,7 @@ interface NetworkInterface {
 	
 	
 	// 이 밑의 모든 함수들은 USER_EXIT을 반활 할 수 있음.
-	public static final int USER_EXIT = 111;
+	public static final int ENEMY_EXIT = 111;
 	
 	// call one more if this function return USER_EXIT or INVALID_RES
 	// internally using static flag, prevent duplicate sending packet.
