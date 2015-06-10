@@ -74,7 +74,7 @@ interface NetworkInterface {
 	Pair<Integer, NetworkRoomList> getRoomList();
 	
 	public static final int MAKE_ROOM_OK = 10;
-	int makeRoom(NetworkRoom room);
+	int makeRoom(String roomName, int gameMode);
 	
 	public static final int ENTER_ROOM_OK = 11;
 	public static final int ROOM_FULL = 12;
