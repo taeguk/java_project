@@ -1,3 +1,12 @@
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 class Pair<U, V> {
 
 	/**
@@ -110,5 +119,40 @@ interface NetworkInterface {
 
 
 class NetworkMethod implements NetworkInterface {
-	~~~~
+	public static final String ip = "163.239.200.116";
+	public static final int port = 7777;
+	static Socket sock;
+	public int enterLobby(String nickname) {
+		try {
+			sock = new Socket(ip, port);
+			ObjectOutputStream outStream = new ObjectOutputStream(new BufferedOutputStream(sock.getOutputStream()));
+			ObjectInputStream inStream = new ObjectInputStream(new BufferedInputStream(sock.getInputStream()));
+			outStream.writeInt(0);
+			outStream.writeInt(PacketFlag.ENTER_LOBBY_REQ);
+			outStream.writeObject(nickname);
+			outStream.close();
+			inStream.readInt();
+			int flag = inStream.readInt();
+			if(flag != PacketFlag.ENTER_LOBBY_RES) {
+				// error handling
+				inStream.close();
+				return INVALID_RES;
+			} else {
+				int res = inStream.readInt();
+				if(res == NICKNAME_OK || res == NICKNAME_DUP || res == NICKNAME_INVALID) {
+					inStream.close();
+					return res;
+				} else {
+					inStream.close();
+					return INVALID_RES;
+				}
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			inStream.close();
+			return NETWORK_ERROR;
+		}
+	}
 }
