@@ -121,7 +121,8 @@ interface NetworkInterface {
 class NetworkMethod implements NetworkInterface {
 	public static final String ip = "163.239.200.116";
 	public static final int port = 7777;
-	static Socket sock;
+	private static Socket sock = null;
+	private boolean isConnected = false;
 	public int enterLobby(String nickname) {
 		try {
 			sock = new Socket(ip, port);
@@ -136,14 +137,22 @@ class NetworkMethod implements NetworkInterface {
 			if(flag != PacketFlag.ENTER_LOBBY_RES) {
 				// error handling
 				inStream.close();
+				sock.close();
 				return INVALID_RES;
 			} else {
 				int res = inStream.readInt();
-				if(res == NICKNAME_OK || res == NICKNAME_DUP || res == NICKNAME_INVALID) {
+				if(res == NICKNAME_OK) {
 					inStream.close();
+					isConnected = true;
+					return res;
+				}
+				else if(res == NICKNAME_DUP || res == NICKNAME_INVALID) {
+					inStream.close();
+					sock.close();
 					return res;
 				} else {
 					inStream.close();
+					sock.close();
 					return INVALID_RES;
 				}
 			}
@@ -151,7 +160,12 @@ class NetworkMethod implements NetworkInterface {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
-			inStream.close();
+			try {
+				sock.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			return NETWORK_ERROR;
 		}
 	}
