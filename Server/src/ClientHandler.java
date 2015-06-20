@@ -149,6 +149,30 @@ public class ClientHandler extends Thread {
 		}
 	}
 	
+	private void enterRoom(int roomId) {
+		if(!serverManager.isLogin(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		int result = serverManager.enterRoom(socket, roomId);
+		
+		try {
+			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+			byte[] resData;
+			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+			resDataOutputStream.writeInt(PacketFlag.ENTER_ROOM_RES);
+			resDataOutputStream.writeInt(result);
+			resData = resDataStream.toByteArray();
+			resStream.writeInt(resData.length);
+			resStream.write(resData);
+			resStream.flush();
+		} catch(IOException e) {
+			// error handling.
+		}
+	}
+	
 	private void processPacket(int flag, byte[] data) {
 		ObjectInputStream stream = null;
 		try {
@@ -180,8 +204,9 @@ public class ClientHandler extends Thread {
 				break;
 				
 			case PacketFlag.ENTER_ROOM_REQ:
+				int roomId = stream.readInt();
+				enterRoom(roomId);
 				break;
-				
 			case PacketFlag.WAIT_USER_REQ:
 				break;
 				

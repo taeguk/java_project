@@ -87,13 +87,13 @@ class Room {
 
 public class ServerManager {
 	HashMap<Socket,User> users;
-	ArrayList<Room> rooms;
+	HashMap<Integer,Room> rooms;
 	
 	ServerManager() {
 		users = new HashMap<Socket,User>();
-		rooms = new ArrayList<Room>();
+		rooms = new HashMap<Integer,Room>();
 		Collections.synchronizedMap(users);
-		Collections.synchronizedList(rooms);
+		Collections.synchronizedMap(rooms);
 	}
 	
 	synchronized public boolean isLogin(Socket socket) {
@@ -128,9 +128,11 @@ public class ServerManager {
 	synchronized public NetworkRoomList getRoomList() {
 		int networkRoomNum = rooms.size();
 		NetworkRoom[] networkRooms = new NetworkRoom[networkRoomNum];
+		int i=0;
 		
-		for(int i=0; i<networkRoomNum; ++i) {
-			networkRooms[i] = rooms.get(i).toNetworkRoom();
+		Iterator<Integer> it = rooms.keySet().iterator();
+		while(it.hasNext()) {
+			networkRooms[i++] = rooms.get(it.next()).toNetworkRoom();
 		}
 		
 		NetworkRoomList networkRoomList = new NetworkRoomList(networkRoomNum, networkRooms);
@@ -139,7 +141,21 @@ public class ServerManager {
 	
 	synchronized public boolean makeRoom(Socket socket, String roomName, int gameMode) {
 		Room room = new Room(new Pair<Socket,User>(socket, users.get(socket)), roomName, gameMode);
-		rooms.add(room);
+		rooms.put(room.getRoomId(),room);
 		return true;
+	}
+
+	synchronized public int enterRoom(Socket socket, int roomId) {
+		Room room;
+		if((room=rooms.get(roomId)) == null) {
+			return NetworkInterface.ROOM_DEL;
+		} else {
+			if(room.getUserNum() >= 2) {
+				return NetworkInterface.ROOM_FULL;
+			} else {
+				room.setGuest(new Pair<Socket,User>(socket,users.get(socket)));
+				return NetworkInterface.ENTER_ROOM_OK;
+			}
+		}
 	}
 }
