@@ -1,5 +1,8 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -126,6 +129,7 @@ class NetworkMethod implements NetworkInterface {
 	public int enterLobby(String nickname) {
 		try {
 			sock = new Socket(ip, port);
+			/*
 			ObjectOutputStream outStream = new ObjectOutputStream(new BufferedOutputStream(sock.getOutputStream()));
 			ObjectInputStream inStream = new ObjectInputStream(new BufferedInputStream(sock.getInputStream()));
 			outStream.writeInt(0);
@@ -134,24 +138,52 @@ class NetworkMethod implements NetworkInterface {
 			outStream.close();
 			inStream.readInt();
 			int flag = inStream.readInt();
+			*/
+			
+			DataOutputStream reqStream = new DataOutputStream(sock.getOutputStream());
+			byte[] reqData;
+			ByteArrayOutputStream reqDataStream = new ByteArrayOutputStream();
+			ObjectOutputStream reqDataOutputStream = new ObjectOutputStream(reqDataStream);
+			reqDataOutputStream.writeInt(PacketFlag.ENTER_LOBBY_REQ);
+			reqDataOutputStream.writeObject(nickname);
+			reqData = reqDataStream.toByteArray();
+			reqStream.writeInt(reqData.length);
+			reqStream.write(reqData);
+			reqStream.flush();
+			
+			DataInputStream resStream = new DataInputStream(sock.getInputStream());
+			int dataLen = resStream.readInt();
+			int readLen = 0;
+			int readSz;
+			byte[] resData = new byte[dataLen];
+			while(readLen < dataLen && (readSz=resStream.read(resData,readLen,dataLen-readLen)) != -1) {
+				readLen += readSz;
+			}
+			if(readLen < dataLen) {
+				sock.close();
+				return INVALID_RES;
+			}
+			ObjectInputStream resDataInputStream = new ObjectInputStream(new ByteArrayInputStream(resData));
+			
+			int flag = resDataInputStream.readInt();
+			
 			if(flag != PacketFlag.ENTER_LOBBY_RES) {
 				// error handling
-				inStream.close();
+				resDataInputStream.close();
 				sock.close();
 				return INVALID_RES;
 			} else {
-				int res = inStream.readInt();
+				int res = resDataInputStream.readInt();
 				if(res == NICKNAME_OK) {
-					inStream.close();
 					isConnected = true;
 					return res;
 				}
 				else if(res == NICKNAME_DUP || res == NICKNAME_INVALID) {
-					inStream.close();
+					resDataInputStream.close();
 					sock.close();
 					return res;
 				} else {
-					inStream.close();
+					resDataInputStream.close();
 					sock.close();
 					return INVALID_RES;
 				}
