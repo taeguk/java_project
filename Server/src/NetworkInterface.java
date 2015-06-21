@@ -80,13 +80,13 @@ interface NetworkInterface {
 	// internally using static flag, prevent duplicate sending packet.
 	// 이 사실은 모든 함수들에 해당됨.
 	public static final int READY_OK = 15;
-	int readyGame();	// wait
+	int readyGame();	
 	
 	public static final int EXIT_ROOM_OKAY = 2222;
 	int exitRoom();
 	
 	public static final int GAME_START = 16;
-	int waitGameStart();
+	int waitGameStart();		// wait
 	
 	public static final int DROP_BALL_OK = 17;
 	int dropBall(int pos);

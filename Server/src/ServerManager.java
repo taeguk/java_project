@@ -288,13 +288,16 @@ public class ServerManager {
 	public void readyGame(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
-		user.setStatus(User.IN_ROOM_READY);
-		User enemy = room.getEnemy(user);
+		User enemy = getEnemy(user);
 		if(enemy != null) {
-			
+			user.setStatus(User.IN_ROOM_READY);
+			if(enemy.getStatus() == User.IN_ROOM_READY) {
+				// game start
+				gameStart(room);
+			}
 		}
 	}
-	
+
 	private User getEnemy(User user) {
 		Room room = user.getRoom();
 		if(room == null)
@@ -308,5 +311,10 @@ public class ServerManager {
 		} else {
 			return null;
 		}
+	}
+	
+	private void gameStart(Room room) {
+		// TODO Auto-generated method stub
+		
 	}
 }
