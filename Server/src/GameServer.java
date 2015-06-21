@@ -25,7 +25,8 @@ public class GameServer {
 				ClientHandler clientHandler = new ClientHandler(socket, serverManager);
 				clientHandler.start();
 			} catch(Exception e) {
-				// do what
+				System.out.println("[Log] Exception in main() : " + e.getMessage());
+				continue;
 			}
 		}
 	}

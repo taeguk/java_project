@@ -33,6 +33,10 @@ public class ClientHandler extends Thread {
 			}
 		} catch(Exception e) {
 			serverManager.terminateUser(socket);
+			try {
+				socket.close();
+			} catch (IOException e1) {
+			}
 			System.out.println("[Log] ["+this.getName()+"]  " + " terminated. ("+e.getMessage()+")");
 		}
 	}
