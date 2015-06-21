@@ -1,4 +1,6 @@
-class NetworkRoom {
+import java.io.Serializable;
+
+class NetworkRoom implements Serializable{
 	public static final int ONE_WINS = 1;	// ´ÜÆÇ½ÂºÎ
 	public static final int TWO_WINS = 2;	// 3ÆÇ 2½ÂÁ¦
 	public static final int THREE_WINS = 3;	// 5ÆÇ 3½ÂÁ¦
@@ -25,7 +27,7 @@ class NetworkRoom {
 	public int getGameMode() { return gameMode; }
 }
 
-class NetworkRoomList {
+class NetworkRoomList implements Serializable {
 	private int roomNum;
 	private NetworkRoom[] rooms;
 	

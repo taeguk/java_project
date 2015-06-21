@@ -41,6 +41,8 @@ class PacketFlag {
 	public static final int WAIT_GAMESTART_REQ = 16;
 	// x
 	public static final int WAIT_GAMESTART_RES = 17;
+	// x
+	public static final int WAIT_GAMESTART_TIMEOVER_RES = 7777;
 	// int
 	public static final int DROP_BALL_REQ = 18;
 	// x
@@ -49,6 +51,8 @@ class PacketFlag {
 	public static final int ENEMY_DROP_BALL_REQ = 20;	// wait enemy drop ball
 	// int
 	public static final int ENEMY_DROP_BALL_RES = 21;
+	// time over
+	public static final int ENEMY_DROP_BALL_TIMEOVER_RES = 9999;
 	
 	// x
 	public static final int ENEMY_EXIT = 30;	

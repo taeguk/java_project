@@ -57,6 +57,158 @@ class Room {
 	private boolean isOpened = true;
 	private int gameMode;
 	
+	public static final int FIELD_HEIGHT = 9;
+	public static final int FIELD_WIDTH = 7;
+	
+	public static final int NOTHING = 0;
+	public static final int ADMIN = 1;
+	public static final int GUEST = 2;
+	
+	public static final int NO_BALL = NOTHING;
+	public static final int RED_BALL = ADMIN;
+	public static final int BLUE_BALL = GUEST;
+	
+	private boolean isGameStart = false;
+	private int[][] field;
+	private int turn;
+	private int recentPos;
+	
+	void initializeGame() {
+		isGameStart = true;
+		field = new int[FIELD_HEIGHT][];
+		for(int i=0; i<FIELD_HEIGHT; ++i)
+			field[i] = new int[FIELD_WIDTH];
+		for(int i=0; i<FIELD_HEIGHT; ++i)
+			for(int j=0; j<FIELD_WIDTH; ++j)
+				field[i][j] = NO_BALL;
+		turn = ADMIN;
+		recentPos = -1;
+	}
+	
+	boolean dropBall(User user, int xPos) {
+		int who = who(user);
+		int yPos;
+		for(yPos=FIELD_HEIGHT-1; yPos>=0; --yPos) {
+			if(field[yPos][xPos] == NO_BALL) break;
+		}
+		field[yPos][xPos] = who;
+		
+		if(isGameFinish(who, yPos, xPos)) {
+			gameFinish();
+			return true;
+		} else {
+			if(turn == ADMIN)
+				turn = GUEST;
+			else 
+				turn = ADMIN;
+			recentPos = xPos;
+			return false;
+		}
+	}
+	
+	private void gameFinish() {
+		admin.setStatus(User.IN_ROOM_NOT_READY);
+		guest.setStatus(User.IN_ROOM_NOT_READY);
+		isGameStart = false;
+		field = null;
+	}
+	
+	private boolean isGameFinish(int who, int yPos, int xPos){
+		// check horizontal ----
+		for(int x = xPos-3; x <= xPos; ++x) {
+			if(x < 0 || x+3 >= FIELD_WIDTH)
+				continue;
+			int i;
+			for(i=0; i<4; ++i) {
+				if(field[yPos][x+i] != who)
+					break;
+			}
+			if(i == 4)
+				return true;
+		}
+		
+		// check vertical |
+		for(int y = yPos-3; y <= xPos; ++y) {
+			if(y < 0 || y+3 >= FIELD_WIDTH)
+				continue;
+			int i;
+			for(i=0; i<4; ++i) {
+				if(field[y+i][xPos] != who)
+					break;
+			}
+			if(i == 4)
+				return true;
+		}
+		
+		// check diagonal line 1 \
+		for(int y = yPos-3, x = xPos - 3; y <= xPos ; ++y, ++x) {
+			if(y < 0 || y+3 >= FIELD_WIDTH || x < 0 || x+3 >= FIELD_WIDTH)
+				continue;
+			int i;
+			for(i=0; i<4; ++i) {
+				if(field[y+i][x+i] != who)
+					break;
+			}
+			if(i == 4)
+				return true;
+		}
+		
+		// check diagonal line 2 /
+		for(int y = yPos-3, x = xPos + 3; y <= xPos ; ++y, --x) {
+			if(y < 0 || y+3 >= FIELD_WIDTH || x-3 < 0 || x >= FIELD_WIDTH)
+				continue;
+			int i;
+			for(i=0; i<4; ++i) {
+				if(field[y+i][x-i] != who)
+					break;
+			}
+			if(i == 4)
+				return true;
+		}
+			
+		return false;
+	}
+	
+	boolean canDropBall(User user, int pos) {
+		int who = who(user);
+		
+		if(!isTurn(who))
+			return false;
+		if(pos < 0 || pos >= FIELD_WIDTH)
+			return false;
+		if(field[0][pos] != NO_BALL)
+			return false;
+		
+		return true;
+	}
+	
+	boolean isTurn(User user) {
+		int who = who(user);
+		return isTurn(who);
+	}
+	
+	boolean isTurn(int who) {
+		return (turn == who);
+	}
+	
+	private int who(User user) {
+		if(user==admin) {
+			return ADMIN;
+		} else if(user==guest) {
+			return GUEST;
+		} else {
+			return NOTHING;
+		}
+	}
+	
+	public int getEnemyBallDropPos(User user) {
+		int who = who(user);
+		if(!isTurn(who))
+			return -1;
+		else 
+			return recentPos;
+	}
+	
 	Room(String roomName, int gameMode) {
 		this.roomId = ++id;
 		this.roomName = roomName;
@@ -89,6 +241,7 @@ class Room {
 	}
 	
 	public User deleteUser(User user) {
+		if(isGameStart) gameFinish();
 		if(user == admin) {
 			admin = guest;
 			guest = null;
@@ -121,8 +274,10 @@ class Room {
 	public String getRoomName() { return roomName; }
 	public User getAdmin() { return admin; }
 	public User getGuest() { return guest; }
-	public boolean getIsOpened() { return isOpened; }
+	public boolean isOpened() { return isOpened; }
 	public int getGameMode() { return gameMode; }
+	
+	public boolean isGameStart() { return isGameStart; }
 }
 
 public class ServerManager {
@@ -220,7 +375,7 @@ public class ServerManager {
 		}
 	}
 
-	public boolean isRoomAdmin(Socket socket) {
+	synchronized public boolean isRoomAdmin(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
 		
@@ -234,7 +389,7 @@ public class ServerManager {
 		}
 	}
 
-	public String getMyRoomGuest(Socket socket) {
+	synchronized public String getMyRoomGuest(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
 		User guest = room.getGuest();
@@ -246,12 +401,12 @@ public class ServerManager {
 		}
 	}
 
-	public boolean isInRoom(Socket socket) {
+	synchronized public boolean isInRoom(Socket socket) {
 		User user = getUser(socket);
 		return (user.getRoom() == null ? false : true);
 	}
 
-	public void exitRoom(Socket socket) {
+	synchronized public void exitRoom(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
 		
@@ -266,7 +421,7 @@ public class ServerManager {
 		}
 	}
 
-	private void sendEnemyExit(User remainUser) {
+	synchronized private void sendEnemyExit(User remainUser) {
 		Socket socket = remainUser.getSocket();
 		synchronized(socket) {
 			try {
@@ -285,7 +440,7 @@ public class ServerManager {
 		}
 	}
 
-	public void readyGame(Socket socket) {
+	synchronized public void readyGame(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
 		User enemy = getEnemy(user);
@@ -298,7 +453,7 @@ public class ServerManager {
 		}
 	}
 
-	private User getEnemy(User user) {
+	synchronized private User getEnemy(User user) {
 		Room room = user.getRoom();
 		if(room == null)
 			return null;
@@ -313,8 +468,40 @@ public class ServerManager {
 		}
 	}
 	
-	private void gameStart(Room room) {
-		// TODO Auto-generated method stub
-		
+	synchronized private void gameStart(Room room) {
+		room.initializeGame();
+	}
+
+	synchronized public boolean isGameStart(Socket socket) {
+		User user = getUser(socket);
+		Room room = user.getRoom();
+		return room.isGameStart();
+	}
+	
+	synchronized public boolean canDropBall(Socket socket, int pos) {
+		User user = getUser(socket);
+		Room room = user.getRoom();
+		return room.canDropBall(user, pos);
+	}
+
+	synchronized public void dropBall(Socket socket, int pos) {
+		User user = getUser(socket);
+		Room room = user.getRoom();
+		room.dropBall(user, pos);
+	}
+
+	synchronized public int isEnemyDropBall(Socket socket) {
+		User user = getUser(socket);
+		Room room = user.getRoom();
+		return room.getEnemyBallDropPos(user);
+	}
+	
+	synchronized public void terminateUser(Socket socket) {
+		User user = getUser(socket);
+		Room room = user.getRoom();
+		if(room != null)
+			exitRoom(socket);
+		users.remove(socket);
+		rooms.remove(room.getRoomId());
 	}
 }
