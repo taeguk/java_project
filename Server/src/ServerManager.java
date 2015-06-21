@@ -73,7 +73,76 @@ class Room {
 	private int turn;
 	private int recentPos;
 	
-	void initializeGame() {
+	Room(String roomName, int gameMode) {
+		this.roomId = ++id;
+		this.roomName = roomName;
+		this.gameMode = gameMode;
+	}
+	
+	Room(User admin, String roomName, int gameMode) {
+		this.roomId = ++id;
+		this.roomName = roomName;
+		this.admin = admin;
+		this.gameMode = gameMode;
+	}
+	
+	public int getRoomId() { return roomId; }
+	public String getRoomName() { return roomName; }
+	public User getAdmin() { return admin; }
+	public User getGuest() { return guest; }
+	public boolean isOpened() { return isOpened; }
+	public int getGameMode() { return gameMode; }
+	public boolean isGameStart() { return isGameStart; }
+	
+	public boolean setAdmin(User admin) {
+		if(this.admin == null) {
+			this.admin = admin;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean setGuest(User guest) {
+		if(this.guest == null) {
+			this.guest = guest;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public User deleteUser(User user) {
+		if(isGameStart) gameFinish();
+		if(user == admin) {
+			admin = guest;
+			guest = null;
+		} else if(user == guest) {
+			guest = null;
+		}
+		return admin;
+	}
+	
+	public int getUserNum() {
+		return (admin==null?0:1) + (guest==null?0:1);
+	}
+	
+	public NetworkRoom toNetworkRoom() {
+		int userNum = getUserNum();
+		String[] userNames = new String[userNum];
+		if(userNum==1) {
+			userNames[0] = admin.getUserName();
+		} else if(userNum==2) {
+			userNames[0] = admin.getUserName();
+			userNames[1] = guest.getUserName();
+		} else {
+			userNames = null;
+		}
+		NetworkRoom networkRoom = new NetworkRoom(roomId, roomName, userNames, isOpened, gameMode);
+		return networkRoom;
+	}
+	
+	public void initializeGame() {
 		isGameStart = true;
 		field = new int[FIELD_HEIGHT][];
 		for(int i=0; i<FIELD_HEIGHT; ++i)
@@ -85,7 +154,7 @@ class Room {
 		recentPos = -1;
 	}
 	
-	boolean dropBall(User user, int xPos) {
+	public boolean dropBall(User user, int xPos) {
 		int who = who(user);
 		int yPos;
 		for(yPos=FIELD_HEIGHT-1; yPos>=0; --yPos) {
@@ -169,7 +238,7 @@ class Room {
 		return false;
 	}
 	
-	boolean canDropBall(User user, int pos) {
+	public boolean canDropBall(User user, int pos) {
 		int who = who(user);
 		
 		if(!isTurn(who))
@@ -182,12 +251,12 @@ class Room {
 		return true;
 	}
 	
-	boolean isTurn(User user) {
+	public boolean isTurn(User user) {
 		int who = who(user);
 		return isTurn(who);
 	}
 	
-	boolean isTurn(int who) {
+	private boolean isTurn(int who) {
 		return (turn == who);
 	}
 	
@@ -208,76 +277,6 @@ class Room {
 		else 
 			return recentPos;
 	}
-	
-	Room(String roomName, int gameMode) {
-		this.roomId = ++id;
-		this.roomName = roomName;
-		this.gameMode = gameMode;
-	}
-	
-	Room(User admin, String roomName, int gameMode) {
-		this.roomId = ++id;
-		this.roomName = roomName;
-		this.admin = admin;
-		this.gameMode = gameMode;
-	}
-	
-	public boolean setAdmin(User admin) {
-		if(this.admin == null) {
-			this.admin = admin;
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public boolean setGuest(User guest) {
-		if(this.guest == null) {
-			this.guest = guest;
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public User deleteUser(User user) {
-		if(isGameStart) gameFinish();
-		if(user == admin) {
-			admin = guest;
-			guest = null;
-		} else if(user == guest) {
-			guest = null;
-		}
-		return admin;
-	}
-	
-	public int getUserNum() {
-		return (admin==null?0:1) + (guest==null?0:1);
-	}
-	
-	public NetworkRoom toNetworkRoom() {
-		int userNum = getUserNum();
-		String[] userNames = new String[userNum];
-		if(userNum==1) {
-			userNames[0] = admin.getUserName();
-		} else if(userNum==2) {
-			userNames[0] = admin.getUserName();
-			userNames[1] = guest.getUserName();
-		} else {
-			userNames = null;
-		}
-		NetworkRoom networkRoom = new NetworkRoom(roomId, roomName, userNames, isOpened, gameMode);
-		return networkRoom;
-	}
-	
-	public int getRoomId() { return roomId; }
-	public String getRoomName() { return roomName; }
-	public User getAdmin() { return admin; }
-	public User getGuest() { return guest; }
-	public boolean isOpened() { return isOpened; }
-	public int getGameMode() { return gameMode; }
-	
-	public boolean isGameStart() { return isGameStart; }
 }
 
 public class ServerManager {
@@ -430,7 +429,9 @@ public class ServerManager {
 				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
 				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
 				resDataOutputStream.writeInt(PacketFlag.ENEMY_EXIT);
+				resDataOutputStream.flush();
 				resData = resDataStream.toByteArray();
+				resDataOutputStream.close();
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
@@ -460,9 +461,9 @@ public class ServerManager {
 		User admin = room.getAdmin();
 		User guest = room.getGuest();
 		if(admin == user) {
-			return admin;
-		} else if(guest == user) {
 			return guest;
+		} else if(guest == user) {
+			return admin;
 		} else {
 			return null;
 		}

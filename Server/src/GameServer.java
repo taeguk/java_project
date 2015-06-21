@@ -12,7 +12,7 @@ public class GameServer {
 		
 		try {
 			serverSocket = new ServerSocket(PORT);
-			System.out.println(ServerLog.getTime() + " Server is ready.");
+			System.out.println("[Log] Server is ready.");
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -21,7 +21,7 @@ public class GameServer {
 			try {
 				Socket socket = serverSocket.accept();
 				// log
-				System.out.println(ServerLog.getTime() + " someone connected!");
+				System.out.println("[Log] someone connected!");
 				ClientHandler clientHandler = new ClientHandler(socket, serverManager);
 				clientHandler.start();
 			} catch(Exception e) {

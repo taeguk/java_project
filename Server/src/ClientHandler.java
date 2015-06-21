@@ -18,7 +18,7 @@ public class ClientHandler extends Thread {
 	}
 	
 	public void run() {
-		System.out.println(ServerLog.getTime() + this.getName() + " run!");
+		System.out.println("[Log] " + this.getName() + " run!");
 		try {
 			while(true) {
 				int dataLen = getPacket();
@@ -33,14 +33,12 @@ public class ClientHandler extends Thread {
 			}
 		} catch(Exception e) {
 			serverManager.terminateUser(socket);
-			System.out.println("[Debug] " + this.getName() + " is terminated.");
+			System.out.println("[Log] ["+this.getName()+"]  " + " terminated. ("+e.getMessage()+")");
 		}
 	}
 	
-	// code duplication problem notice!!
-	
 	private void invalidRequest() throws Exception {
-		System.out.println("[Debug] Invalid Request!!");
+		System.out.println("[Log] ["+this.getName()+"]  Invalid Request!!");
 		try {
 			synchronized(socket) {
 				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
@@ -54,10 +52,10 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (invalidRequest) **"
+				System.out.println("[Log] ["+this.getName()+"]  (invalidRequest) **"
 						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 			throw new Exception("throw in invalidRequest()");
 		}
@@ -65,7 +63,7 @@ public class ClientHandler extends Thread {
 	
 	private void enterLobby(String userName) throws Exception {
 		int result = serverManager.enterLobby(socket, userName);
-		System.out.println("[Debug] serverManager.enterLobby()'s result : " + result);
+		System.out.println("[Log] ["+this.getName()+"]  (enterLobby) result : " + result);
 		try {
 			synchronized(socket) {
 				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
@@ -81,12 +79,12 @@ public class ClientHandler extends Thread {
 				resStream.write(resData);
 				resStream.flush();
 				
-				System.out.println("Debug (enterLobby) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("Debug (enterLobby) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in enterLobby()");
 		}
 	}
 	
@@ -98,7 +96,7 @@ public class ClientHandler extends Thread {
 		
 		int userNum = serverManager.getUserNum();
 		
-		System.out.println("[Debug] serverManager.getUserNum()'s result : " + userNum);
+		System.out.println("[Log] ["+this.getName()+"]  (getUserNum) userNum : " + userNum);
 		
 		try {
 			synchronized(socket) {
@@ -115,13 +113,12 @@ public class ClientHandler extends Thread {
 				resStream.write(resData);
 				resStream.flush();
 				
-				System.out.println("[Debug] (getUserNum) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (getUserNum) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in getUserNum()");
 		}
 	}
 	
@@ -132,6 +129,8 @@ public class ClientHandler extends Thread {
 		}
 		
 		NetworkRoomList roomList = serverManager.getRoomList();
+		
+		System.out.println("[Log] ["+this.getName()+"]  (getRoomList) roomNum : " + roomList.getRoomNum());
 		
 		try {
 			synchronized(socket) {
@@ -148,13 +147,12 @@ public class ClientHandler extends Thread {
 				resStream.write(resData);
 				resStream.flush();
 				
-				System.out.println("[Debug] (getRoomList) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (getRoomList) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in getRoomList()");
 		}
 	}
 	
@@ -165,6 +163,8 @@ public class ClientHandler extends Thread {
 		}
 		
 		serverManager.makeRoom(socket, roomName, gameMode);		// do what if fail?
+		
+		System.out.println("[Log] ["+this.getName()+"]  (makeRoom) : MAKE_ROOM_RES");
 		
 		try {
 			synchronized(socket) {
@@ -179,13 +179,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (makeRoom) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (makeRoom) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in makeRoom()");
 		}
 	}
 	
@@ -196,6 +195,8 @@ public class ClientHandler extends Thread {
 		}
 		
 		int result = serverManager.enterRoom(socket, roomId);
+		
+		System.out.println("[Log] ["+this.getName()+"]  (enterRoom) result : " + result);
 		
 		try {
 			synchronized(socket) {
@@ -211,13 +212,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (enterRoom) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (enterRoom) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in enterRoom()");
 		}
 	}
 	
@@ -227,7 +227,6 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		// check room admin
 		if(!serverManager.isRoomAdmin(socket)) {
 			invalidRequest();
 			return;
@@ -262,8 +261,10 @@ public class ClientHandler extends Thread {
 				if(!isTimeOver) {
 					resDataOutputStream.writeInt(PacketFlag.WAIT_USER_RES);
 					resDataOutputStream.writeObject(guestName);
+					System.out.println("[Log] ["+this.getName()+"]  (waitUser) : WAIT_USER_RES");
 				} else {
 					resDataOutputStream.writeInt(PacketFlag.WAIT_USER_TIMEOVER_RES);
+					System.out.println("[Log] ["+this.getName()+"]  (waitUser) : WAIT_USER_TIMEOVER_RES");
 				}
 				resDataOutputStream.flush();
 				resData = resDataStream.toByteArray();
@@ -271,13 +272,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (waitUser) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (waitUser) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in waitUser()");
 		}
 	}
 	
@@ -287,13 +287,14 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		// check in room.
 		if(!serverManager.isInRoom(socket)) {
 			invalidRequest();
 			return;
 		}
 		
 		serverManager.exitRoom(socket);
+		
+		System.out.println("[Log] ["+this.getName()+"]  (exitRoom) : EXIT_ROOM_RES");
 	
 		try {
 			synchronized(socket) {
@@ -308,13 +309,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (exitRoom) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (exitRoom) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in exitRoom()");
 		}
 	}
 	
@@ -324,13 +324,14 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		// check in room.
 		if(!serverManager.isInRoom(socket)) {
 			invalidRequest();
 			return;
 		}
 		
 		serverManager.readyGame(socket);
+		
+		System.out.println("[Log] ["+this.getName()+"]  (readyGame) : GAME_READY_RES");
 	
 		try {
 			synchronized(socket) {
@@ -345,13 +346,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (readyGame) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (readyGame) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in readyGame()");
 		}
 	}
 	
@@ -361,7 +361,6 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		// check in room.
 		if(!serverManager.isInRoom(socket)) {
 			invalidRequest();
 			return;
@@ -393,8 +392,10 @@ public class ClientHandler extends Thread {
 				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
 				if(!isTimeOver) {
 					resDataOutputStream.writeInt(PacketFlag.WAIT_GAMESTART_RES);
+					System.out.println("[Log] ["+this.getName()+"]  (waitGameStart) : WAIT_GAMESTART_RES");
 				} else {
 					resDataOutputStream.writeInt(PacketFlag.WAIT_GAMESTART_TIMEOVER_RES);
+					System.out.println("[Log] ["+this.getName()+"]  (waitGameStart) : WAIT_GAMESTART_TIMEOVER_RES");
 				}
 				resDataOutputStream.flush();
 				resData = resDataStream.toByteArray();
@@ -402,13 +403,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (waitGameStart) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (waitGameStart) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in waitGameStart()");
 		}
 	}
 	
@@ -418,7 +418,6 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		// check in room.
 		if(!serverManager.isInRoom(socket)) {
 			invalidRequest();
 			return;
@@ -435,6 +434,8 @@ public class ClientHandler extends Thread {
 		}
 		
 		serverManager.dropBall(socket, pos);
+		
+		System.out.println("[Log] ["+this.getName()+"]  (dropBall) My dropBall pos : " + pos);
 	
 		try {
 			synchronized(socket) {
@@ -449,13 +450,12 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (dropBall) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (dropBall) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in dropBall()");
 		}
 	}
 	
@@ -465,7 +465,6 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		// check in room.
 		if(!serverManager.isInRoom(socket)) {
 			invalidRequest();
 			return;
@@ -504,8 +503,10 @@ public class ClientHandler extends Thread {
 				if(!isTimeOver) {
 					resDataOutputStream.writeInt(PacketFlag.ENEMY_DROP_BALL_RES);
 					resDataOutputStream.writeInt(pos);
+					System.out.println("[Log] ["+this.getName()+"]  (waitEnemyDropBall) : ENEMY_DROP_BALL_RES (pos : "+pos+")");
 				} else {
 					resDataOutputStream.writeInt(PacketFlag.ENEMY_DROP_BALL_TIMEOVER_RES);
+					System.out.println("[Log] ["+this.getName()+"]  (waitEnemyDropBall) : ENEMY_DROP_BALL_TIMEOVER_RES");
 				}
 				resDataOutputStream.flush();
 				resData = resDataStream.toByteArray();
@@ -513,31 +514,25 @@ public class ClientHandler extends Thread {
 				resStream.writeInt(resData.length);
 				resStream.write(resData);
 				resStream.flush();
-				System.out.println("[Debug] (waitGameStart) **"
-						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
+//				System.out.println("[Log] ["+this.getName()+"]  (waitGameStart) **"
+//						+ " resData.length : " + resData.length + "  resData : " + new String(resData));
 			}
-		} catch(IOException e) {
-			// error handling.
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch(Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in waitEnemyDropBall()");
 		}
 	}
 	
 	private void processPacket(byte[] data) throws Exception {
 		ObjectInputStream stream = null;
 		int flag = -8888;
-		
+
 		try {
 			stream = new ObjectInputStream(new ByteArrayInputStream(data));
 			flag = stream.readInt();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.out.println("[Debug](processPacket) ** flag : "+flag+" *** " + new String(data));
-		
-		try {	
+			
+//			System.out.println("[Log] ["+this.getName()+"]  (processPacket) ** flag : "+flag+" *** " + new String(data));
+			
 			switch(flag) {
 			case PacketFlag.ENTER_LOBBY_REQ:
 				String userName = (String) stream.readObject();
@@ -592,9 +587,8 @@ public class ClientHandler extends Thread {
 				// error handling.
 			}
 		} catch(Exception e) {
-			// error handling!
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+//			e.printStackTrace();
+			throw new Exception("throw in processPacket()");
 		}
 	}
 
@@ -606,13 +600,12 @@ public class ClientHandler extends Thread {
 			synchronized(socket) {
 				reqStream = new DataInputStream(socket.getInputStream());
 				dataLen = reqStream.readInt();
-				System.out.println("[Debug] (getData) ** " + dataLen);
+//				System.out.println("[Log] ["+this.getName()+"]  (getData) ** " + dataLen);
 				
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch (Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in getPacket()");
 		}
 		return dataLen;
 	}
@@ -629,16 +622,15 @@ public class ClientHandler extends Thread {
 					readLen += readSz;
 				}
 				
-				System.out.println("[Debug] (getData) **"
-						+ " dataLen : " + dataLen + " readLen : " + readLen + " readSz : " + readSz);
+//				System.out.println("[Log] ["+this.getName()+"]  (getData) **"
+//						+ " dataLen : " + dataLen + " readLen : " + readLen + " readSz : " + readSz);
 				if(readLen < dataLen) {
 					return null;	// why use network interface? must modify it !
 				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			throw new Exception("throw in invalidRequest()");
+		} catch (Exception e) {
+//			e.printStackTrace();
+			throw new Exception("throw in getData()");
 		}
 		return data;
 	}

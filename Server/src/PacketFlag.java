@@ -42,7 +42,7 @@ class PacketFlag {
 	// x
 	public static final int WAIT_GAMESTART_RES = 17;
 	// x
-	public static final int WAIT_GAMESTART_TIMEOVER_RES = 7777;
+	public static final int WAIT_GAMESTART_TIMEOVER_RES = 17777;
 	// int
 	public static final int DROP_BALL_REQ = 18;
 	// x
