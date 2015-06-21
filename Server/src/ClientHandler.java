@@ -45,34 +45,38 @@ public class ClientHandler extends Thread {
 	
 	private void invalidRequest() {
 		try {
-			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-			byte[] resData;
-			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-			resDataOutputStream.writeInt(PacketFlag.INVALID_REQ);
-			resData = resDataStream.toByteArray();
-			resStream.writeInt(resData.length);
-			resStream.write(resData);
-			resStream.flush();
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.INVALID_REQ);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
 		} catch(IOException e) {
 			// error handling.
 		}
 	}
 	
 	private void enterLobby(String userName) {
-		int result = serverManager.addUser(socket, userName);
+		int result = serverManager.enterLobby(socket, userName);
 		
 		try {
-			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-			byte[] resData;
-			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-			resDataOutputStream.writeInt(PacketFlag.ENTER_LOBBY_RES);
-			resDataOutputStream.writeInt(result);
-			resData = resDataStream.toByteArray();
-			resStream.writeInt(resData.length);
-			resStream.write(resData);
-			resStream.flush();
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.ENTER_LOBBY_RES);
+				resDataOutputStream.writeInt(result);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
 		} catch(IOException e) {
 			// error handling.
 		}
@@ -87,16 +91,18 @@ public class ClientHandler extends Thread {
 		int userNum = serverManager.getUserNum();
 		
 		try {
-			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-			byte[] resData;
-			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-			resDataOutputStream.writeInt(PacketFlag.GET_USERNUM_RES);
-			resDataOutputStream.writeInt(userNum);
-			resData = resDataStream.toByteArray();
-			resStream.writeInt(resData.length);
-			resStream.write(resData);
-			resStream.flush();
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.GET_USERNUM_RES);
+				resDataOutputStream.writeInt(userNum);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
 		} catch(IOException e) {
 			// error handling.
 		}
@@ -111,16 +117,18 @@ public class ClientHandler extends Thread {
 		NetworkRoomList roomList = serverManager.getRoomList();
 		
 		try {
-			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-			byte[] resData;
-			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-			resDataOutputStream.writeInt(PacketFlag.GET_ROOMLIST_RES);
-			resDataOutputStream.writeObject(roomList);		// roomList serialization problem notice!!
-			resData = resDataStream.toByteArray();
-			resStream.writeInt(resData.length);
-			resStream.write(resData);
-			resStream.flush();
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.GET_ROOMLIST_RES);
+				resDataOutputStream.writeObject(roomList);		// roomList serialization problem notice!!
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
 		} catch(IOException e) {
 			// error handling.
 		}
@@ -135,15 +143,17 @@ public class ClientHandler extends Thread {
 		serverManager.makeRoom(socket, roomName, gameMode);		// do what if fail?
 		
 		try {
-			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-			byte[] resData;
-			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-			resDataOutputStream.writeInt(PacketFlag.MAKE_ROOM_RES);
-			resData = resDataStream.toByteArray();
-			resStream.writeInt(resData.length);
-			resStream.write(resData);
-			resStream.flush();
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.MAKE_ROOM_RES);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
 		} catch(IOException e) {
 			// error handling.
 		}
@@ -158,16 +168,134 @@ public class ClientHandler extends Thread {
 		int result = serverManager.enterRoom(socket, roomId);
 		
 		try {
-			DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-			byte[] resData;
-			ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-			ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-			resDataOutputStream.writeInt(PacketFlag.ENTER_ROOM_RES);
-			resDataOutputStream.writeInt(result);
-			resData = resDataStream.toByteArray();
-			resStream.writeInt(resData.length);
-			resStream.write(resData);
-			resStream.flush();
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.ENTER_ROOM_RES);
+				resDataOutputStream.writeInt(result);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
+		} catch(IOException e) {
+			// error handling.
+		}
+	}
+	
+	private void waitUser() {
+		if(!serverManager.isLogin(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		// check room admin
+		if(!serverManager.isRoomAdmin(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		boolean isTimeOver = true;
+		final int timeout = 3000;
+		final int gap = 500;
+		int time = 0;
+		String guestName;
+		
+		do {
+			try {
+				Thread.sleep(gap);
+			} catch (InterruptedException e) {
+				// error handling -> maybe connection quit?
+			}
+			time += gap;
+			guestName = serverManager.getMyRoomGuest(socket);
+			if(guestName != null) {
+				isTimeOver = false;
+				break;
+			}
+		} while(time < timeout);
+	
+		try {
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				if(isTimeOver) {
+					resDataOutputStream.writeInt(PacketFlag.WAIT_USER_TIMEOVER_RES);
+				} else {
+					resDataOutputStream.writeInt(PacketFlag.WAIT_USER_TIMEOVER_RES);
+					resDataOutputStream.writeObject(guestName);
+				}
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
+		} catch(IOException e) {
+			// error handling.
+		}
+	}
+	
+	private void exitRoom() {
+		if(!serverManager.isLogin(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		// check in room.
+		if(!serverManager.isInRoom(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		serverManager.exitRoom(socket);
+	
+		try {
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.EXIT_ROOM_RES);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
+		} catch(IOException e) {
+			// error handling.
+		}
+	}
+	
+	private void readyGame() {
+		if(!serverManager.isLogin(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		// check in room.
+		if(!serverManager.isInRoom(socket)) {
+			invalidRequest();
+			return;
+		}
+		
+		serverManager.readyGame(socket);
+	
+		try {
+			synchronized(socket) {
+				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.EXIT_ROOM_RES);
+				resData = resDataStream.toByteArray();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			}
 		} catch(IOException e) {
 			// error handling.
 		}
@@ -208,9 +336,15 @@ public class ClientHandler extends Thread {
 				enterRoom(roomId);
 				break;
 			case PacketFlag.WAIT_USER_REQ:
+				waitUser();
 				break;
 				
 			case PacketFlag.EXIT_ROOM_REQ:
+				exitRoom();
+				break;
+				
+			case PacketFlag.GAME_READY_REQ:
+				readyGame();
 				break;
 				
 			case PacketFlag.WAIT_GAMESTART_REQ:
@@ -235,8 +369,10 @@ public class ClientHandler extends Thread {
 		DataInputStream reqStream;
 		int dataLen = 0;
 		try {
-			reqStream = new DataInputStream(socket.getInputStream());
-			dataLen = reqStream.readInt();
+			synchronized(socket) {
+				reqStream = new DataInputStream(socket.getInputStream());
+				dataLen = reqStream.readInt();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -247,8 +383,10 @@ public class ClientHandler extends Thread {
 	private int getData() {
 		int flag = 0;
 		try {
-			DataInputStream stream = new DataInputStream(socket.getInputStream());
-			flag = stream.readInt();
+			synchronized(socket) {
+				DataInputStream stream = new DataInputStream(socket.getInputStream());
+				flag = stream.readInt();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -259,16 +397,18 @@ public class ClientHandler extends Thread {
 	private int getData(byte[] data) {
 		int flag = 0;
 		try {
-			DataInputStream stream = new DataInputStream(socket.getInputStream());
-			flag = stream.readInt();
-			int dataLen = data.length;
-			int readLen = 0;
-			int readSz;
-			while(readLen < dataLen && (readSz=stream.read(data,readLen,dataLen-readLen)) != -1) {
-				readLen += readSz;
-			}
-			if(readLen < dataLen) {
-				return INVALID_REQ;
+			synchronized(socket) {
+				DataInputStream stream = new DataInputStream(socket.getInputStream());
+				flag = stream.readInt();
+				int dataLen = data.length;
+				int readLen = 0;
+				int readSz;
+				while(readLen < dataLen && (readSz=stream.read(data,readLen,dataLen-readLen)) != -1) {
+					readLen += readSz;
+				}
+				if(readLen < dataLen) {
+					return NetworkInterface.INVALID_REQ;	// why use network interface? must modify it !
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -277,3 +417,4 @@ public class ClientHandler extends Thread {
 		return flag;
 	}
 }
+// dongihwa..

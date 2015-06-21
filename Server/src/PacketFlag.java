@@ -26,11 +26,17 @@ class PacketFlag {
 	public static final int WAIT_USER_REQ = 11;
 	// String class : nickname
 	public static final int WAIT_USER_RES = 12;
+	// time over
+	public static final int WAIT_USER_TIMEOVER_RES = 7777;
 	
 	// x
 	public static final int EXIT_ROOM_REQ = 14;
 	// x
 	public static final int EXIT_ROOM_RES = 15;
+	// x
+	public static final int GAME_READY_REQ = 1111;
+	// x
+	public static final int GAME_READY_RES = 2222;
 	// x
 	public static final int WAIT_GAMESTART_REQ = 16;
 	// x
