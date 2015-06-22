@@ -13,7 +13,7 @@ About
 Project Team - Founded By Random Matching in Java Class
 -----
 ####[taeguk](https://github.com/taeguk) - Server and protocol design<br/>
-####[dl0312](https://github.com/minwookoo) - Network in Client<br/>
+####[dl0312](https://github.com/dl0312) - Network in Client<br/>
 ####신상규 - Game, GUI in Client<br/>
 ####정윤석 - Game, GUI in Client<br/>
 <br/>
