@@ -82,6 +82,7 @@ interface NetworkInterface {
 	// internally using static flag, prevent duplicate sending packet.
 	// 이 사실은 모든 함수들에 해당됨.
 	public static final int READY_OK = 15;
+	public static final int READY_FAIL = 4321;
 	int readyGame();	
 	
 	public static final int EXIT_ROOM_OKAY = 2222;

@@ -68,6 +68,7 @@ class Room {
 	public static final int RED_BALL = ADMIN;
 	public static final int BLUE_BALL = GUEST;
 	
+	private boolean isFinishByVictory = false;
 	private boolean isGameStart = false;
 	private int[][] field;
 	private int turn;
@@ -93,6 +94,7 @@ class Room {
 	public boolean isOpened() { return isOpened; }
 	public int getGameMode() { return gameMode; }
 	public boolean isGameStart() { return isGameStart; }
+	public boolean isFinishByVictory() { return isFinishByVictory; }
 	
 	public boolean setAdmin(User admin) {
 		if(this.admin == null) {
@@ -106,6 +108,7 @@ class Room {
 	public boolean setGuest(User guest) {
 		if(this.guest == null) {
 			this.guest = guest;
+			isOpened = false;
 			return true;
 		} else {
 			return false;
@@ -113,7 +116,7 @@ class Room {
 	}
 	
 	public User deleteUser(User user) {
-		if(isGameStart) gameFinish();
+		if(isGameStart) gameFinish(false);
 		if(user == admin) {
 			admin = guest;
 			guest = null;
@@ -122,6 +125,7 @@ class Room {
 		}
 		if(admin != null)
 			admin.setStatus(User.IN_ROOM_NOT_READY);
+		isOpened = true;
 		return admin;
 	}
 	
@@ -169,23 +173,24 @@ class Room {
 			turn = GUEST;
 		else 
 			turn = ADMIN;
-		if(isGameFinish(who, yPos, xPos)) {
-			gameFinish();
+		if(isGameFinishByVictory(who, yPos, xPos)) {
+			gameFinish(true);
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	private void gameFinish() {
+	private void gameFinish(boolean isFinishByVictory) {
 		System.out.println("[Log] Game Finish!");
 		admin.setStatus(User.IN_ROOM_NOT_READY);
 		guest.setStatus(User.IN_ROOM_NOT_READY);
 		isGameStart = false;
+		this.isFinishByVictory = isFinishByVictory;
 		field = null;
 	}
 	
-	private boolean isGameFinish(int who, int yPos, int xPos){
+	private boolean isGameFinishByVictory(int who, int yPos, int xPos){
 		// check horizontal ----
 		for(int x = xPos-3; x <= xPos; ++x) {
 			if(x < 0 || x+3 >= FIELD_WIDTH)
@@ -423,7 +428,7 @@ public class ServerManager {
 		}
 	}
 
-	synchronized public void readyGame(Socket socket) {
+	synchronized public boolean readyGame(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
 		User enemy = getEnemy(user);
@@ -433,6 +438,9 @@ public class ServerManager {
 				// game start
 				gameStart(room);
 			}
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -488,5 +496,11 @@ public class ServerManager {
 			users.remove(socket);
 			rooms.remove(room.getRoomId());
 		}
+	}
+
+	synchronized public boolean isFinishByVictory(Socket socket) {
+		User user = getUser(socket);
+		Room room = user.getRoom();
+		return room.isFinishByVictory();
 	}
 }

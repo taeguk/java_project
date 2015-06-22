@@ -359,9 +359,7 @@ public class ClientHandler extends Thread {
 			return;
 		}
 		
-		serverManager.readyGame(socket);
-		
-		System.out.println("[Log] ["+this.getName()+"]  (readyGame) : GAME_READY_RES");
+		boolean isReadyOk = serverManager.readyGame(socket);
 	
 		try {
 			synchronized(socket) {
@@ -369,7 +367,14 @@ public class ClientHandler extends Thread {
 				byte[] resData;
 				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
 				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-				resDataOutputStream.writeInt(PacketFlag.GAME_READY_RES);
+				if(isReadyOk) {
+					System.out.println("[Log] ["+this.getName()+"]  (readyGame) : GAME_READY_RES");
+					resDataOutputStream.writeInt(PacketFlag.GAME_READY_RES);
+				}
+				else {
+					System.out.println("[Log] ["+this.getName()+"]  (readyGame) : GAME_READY_FAIL_RES");
+					resDataOutputStream.writeInt(PacketFlag.GAME_READY_FAIL_RES);
+				}
 				resDataOutputStream.flush();
 				resData = resDataStream.toByteArray();
 				resDataOutputStream.close();
@@ -499,12 +504,13 @@ public class ClientHandler extends Thread {
 			invalidRequest();
 			return;
 		}
-		/*
-		if(!serverManager.isGameStart(socket)) {
+		
+		if(!serverManager.isGameStart(socket) && !serverManager.isFinishByVictory(socket)) {
+			//serverManager.setFinishByVictory(true);
 			invalidRequest();
 			return;
 		}
-		*/
+		
 		boolean isTimeOver = true;
 		final int timeout = 3000;
 		final int gap = 500;
