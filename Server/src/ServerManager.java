@@ -71,7 +71,7 @@ class Room {
 	private boolean isGameStart = false;
 	private int[][] field;
 	private int turn;
-	private int recentPos;
+	private int recentPos = -1;
 	
 	Room(String roomName, int gameMode) {
 		this.roomId = ++id;
@@ -120,6 +120,8 @@ class Room {
 		} else if(user == guest) {
 			guest = null;
 		}
+		if(admin != null)
+			admin.setStatus(User.IN_ROOM_NOT_READY);
 		return admin;
 	}
 	
@@ -143,6 +145,7 @@ class Room {
 	}
 	
 	public void initializeGame() {
+		System.out.println("[Log] Game Start!");
 		isGameStart = true;
 		field = new int[FIELD_HEIGHT][];
 		for(int i=0; i<FIELD_HEIGHT; ++i)
@@ -161,21 +164,21 @@ class Room {
 			if(field[yPos][xPos] == NO_BALL) break;
 		}
 		field[yPos][xPos] = who;
-		
+		recentPos = xPos;
+		if(turn == ADMIN)
+			turn = GUEST;
+		else 
+			turn = ADMIN;
 		if(isGameFinish(who, yPos, xPos)) {
 			gameFinish();
 			return true;
 		} else {
-			if(turn == ADMIN)
-				turn = GUEST;
-			else 
-				turn = ADMIN;
-			recentPos = xPos;
 			return false;
 		}
 	}
 	
 	private void gameFinish() {
+		System.out.println("[Log] Game Finish!");
 		admin.setStatus(User.IN_ROOM_NOT_READY);
 		guest.setStatus(User.IN_ROOM_NOT_READY);
 		isGameStart = false;
@@ -405,7 +408,7 @@ public class ServerManager {
 		return (user.getRoom() == null ? false : true);
 	}
 
-	synchronized public void exitRoom(Socket socket) {
+	synchronized public Socket exitRoom(Socket socket) {
 		User user = getUser(socket);
 		Room room = user.getRoom();
 		
@@ -414,30 +417,9 @@ public class ServerManager {
 		if(remainUser == null) {
 			// delete room.
 			rooms.remove(room.getRoomId());
+			return null;
 		} else {
-			// send ENEMY_EXIT packet to remainUser.
-			sendEnemyExit(remainUser);
-		}
-	}
-
-	synchronized private void sendEnemyExit(User remainUser) {
-		Socket socket = remainUser.getSocket();
-		synchronized(socket) {
-			try {
-				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
-				byte[] resData;
-				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
-				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
-				resDataOutputStream.writeInt(PacketFlag.ENEMY_EXIT);
-				resDataOutputStream.flush();
-				resData = resDataStream.toByteArray();
-				resDataOutputStream.close();
-				resStream.writeInt(resData.length);
-				resStream.write(resData);
-				resStream.flush();
-			} catch(IOException e) {
-				// error handling.
-			}
+			return remainUser.getSocket();
 		}
 	}
 
@@ -499,10 +481,12 @@ public class ServerManager {
 	
 	synchronized public void terminateUser(Socket socket) {
 		User user = getUser(socket);
-		Room room = user.getRoom();
-		if(room != null)
-			exitRoom(socket);
-		users.remove(socket);
-		rooms.remove(room.getRoomId());
+		if(user != null) {
+			Room room = user.getRoom();
+			if(room != null)
+				exitRoom(socket);
+			users.remove(socket);
+			rooms.remove(room.getRoomId());
+		}
 	}
 }

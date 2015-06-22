@@ -295,12 +295,15 @@ public class ClientHandler extends Thread {
 			invalidRequest();
 			return;
 		}
-		
-		serverManager.exitRoom(socket);
-		
-		System.out.println("[Log] ["+this.getName()+"]  (exitRoom) : EXIT_ROOM_RES");
 	
 		try {
+			Socket remainUserSocket = serverManager.exitRoom(socket);
+			if(remainUserSocket != null) {
+				sendEnemyExit(remainUserSocket);
+			}
+			
+			System.out.println("[Log] ["+this.getName()+"]  (exitRoom) : EXIT_ROOM_RES");
+			
 			synchronized(socket) {
 				DataOutputStream resStream = new DataOutputStream(socket.getOutputStream());
 				byte[] resData;
@@ -320,6 +323,29 @@ public class ClientHandler extends Thread {
 //			e.printStackTrace();
 			throw new Exception("throw in exitRoom()");
 		}
+	}
+	
+	private void sendEnemyExit(Socket remainUserSocket) throws Exception {
+		System.out.println("[Log] ["+this.getName()+"]  (sendEnemyExit) : ENEMY_EXIT");
+		//synchronized(remainUserSocket) {
+			System.out.println("[Log] ["+this.getName()+"]  fuck");
+			try {
+				DataOutputStream resStream = new DataOutputStream(remainUserSocket.getOutputStream());
+				byte[] resData;
+				ByteArrayOutputStream resDataStream = new ByteArrayOutputStream();
+				ObjectOutputStream resDataOutputStream = new ObjectOutputStream(resDataStream);
+				resDataOutputStream.writeInt(PacketFlag.ENEMY_EXIT);
+				resDataOutputStream.flush();
+				resData = resDataStream.toByteArray();
+				resDataOutputStream.close();
+				resStream.writeInt(resData.length);
+				resStream.write(resData);
+				resStream.flush();
+			} catch(Exception e) {
+//				e.printStackTrace();
+				throw new Exception("throw in sendEnemyExit()");
+			}
+		//}
 	}
 	
 	private void readyGame() throws Exception {
@@ -473,12 +499,12 @@ public class ClientHandler extends Thread {
 			invalidRequest();
 			return;
 		}
-		
+		/*
 		if(!serverManager.isGameStart(socket)) {
 			invalidRequest();
 			return;
 		}
-		
+		*/
 		boolean isTimeOver = true;
 		final int timeout = 3000;
 		final int gap = 500;
